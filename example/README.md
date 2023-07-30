@@ -1,6 +1,6 @@
-# flutter_stetho_example
+# flutter_stetho_plus_example
 
-Demonstrates how to use the flutter_stetho plugin.
+Demonstrates how to use the flutter_stetho_plus plugin.
 
 ## Getting Started
 

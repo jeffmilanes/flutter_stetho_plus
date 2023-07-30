@@ -9,6 +9,10 @@ import com.facebook.stetho.inspector.protocol.ChromeDevtoolsDomain;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -18,39 +22,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-public class FlutterStethoPlugin implements MethodCallHandler {
+public class FlutterStethoPlugin implements FlutterPlugin, MethodCallHandler {
     public final static String TAG = "FlutterStethoPlugin";
     private final NetworkEventReporter mEventReporter = NetworkEventReporterImpl.get();
     private final Map<String, PipedInputStream> inputs = new HashMap<>();
     private final Map<String, PipedOutputStream> outputs = new HashMap<>();
     private final Map<String, FlutterStethoInspectorResponse> responses = new HashMap<>();
     private final Map<String, LinkedBlockingQueue<QueueItem>> queues = new HashMap<>();
-    private final Stetho.Initializer initializer;
+    private Stetho.Initializer initializer;
+    private static MethodChannel channel;
 
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_stetho");
-        channel.setMethodCallHandler(new FlutterStethoPlugin(registrar.context()));
-    }
-
-    private FlutterStethoPlugin(final Context context) {
-        initializer = new Stetho.Initializer(context) {
+    @Override
+    public void onAttachedToEngine(@NonNull @NotNull final FlutterPluginBinding binding) {
+        initializer = new Stetho.Initializer(binding.getApplicationContext()) {
             @Override
             protected Iterable<DumperPlugin> getDumperPlugins() {
-                return new Stetho.DefaultDumperPluginsBuilder(context).finish();
+                return new Stetho.DefaultDumperPluginsBuilder(binding.getApplicationContext()).finish();
             }
 
             @Override
             protected Iterable<ChromeDevtoolsDomain> getInspectorModules() {
-                return new Stetho.DefaultInspectorModulesBuilder(context).finish();
+                return new Stetho.DefaultInspectorModulesBuilder(binding.getApplicationContext()).finish();
             }
         };
+        channel = new MethodChannel(binding.getBinaryMessenger(), "flutter_stetho_plus");
+        channel.setMethodCallHandler(this);
     }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull @NotNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
+        channel = null;
+    }
+
 
     @Override
     public void onMethodCall(final MethodCall call, Result result) {

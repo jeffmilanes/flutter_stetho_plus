@@ -1,15 +1,19 @@
-name: flutter_stetho_example
-description: Demonstrates how to use the flutter_stetho plugin.
+name: flutter_stetho_plus_example
+description: Demonstrates how to use the flutter_stetho_plus plugin.
+
+environment: 
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.12.0
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_stetho:
+  flutter_stetho_plus:
     path: ../
 
 flutter:
