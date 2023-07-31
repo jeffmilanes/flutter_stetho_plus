@@ -12,5 +12,7 @@ dependencies:
 
 flutter:
   plugin:
-    androidPackage: com.brianegan.flutterstetho
-    pluginClass: FlutterStethoPlugin
+    platforms:
+      android:
+        package: com.brianegan.flutterstetho
+        pluginClass: FlutterStethoPlugin
